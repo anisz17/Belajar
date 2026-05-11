@@ -32,12 +32,13 @@ void login(Akun *data, int jumlah, bool &statusLogin, string &namaLogin, string 
                 {
                     cout << endl
                          << e.what() << "\n";
-                    cout << "🔄 Silakan masukkan username kembali.\n\n";
                 }
             }
 
             cout << "🔑 Masukkan Password : ";
-            cin >> inputpw;
+            getline(cin, inputpw);
+            validasiPassword(inputpw);
+            cin.ignore(1000, '\n');
             int index = cariusername(data, jumlah, inputNama);
             if (index != -1 && data[index].pw == inputpw)
             {
@@ -47,7 +48,7 @@ void login(Akun *data, int jumlah, bool &statusLogin, string &namaLogin, string 
 
                 loadingAnimation();
                 cout << "✅ Login berhasil!\n";
-                cout << "👋 Selamat datang, " << namaLogin << " (" << roleLogin << ")!\n\n";
+                cout << "👋 Selamat datang, " << namaLogin << " (" << roleLogin << ")!\n";
                 system("pause");
                 return;
             }
@@ -57,7 +58,7 @@ void login(Akun *data, int jumlah, bool &statusLogin, string &namaLogin, string 
                 cout << "\n❌ Login Gagal! Username atau Password salah.\n";
                 if (kesempatan > 0)
                 {
-                    cout << "⚠️ Sisa kesempatan: " << kesempatan << "\n\n";
+                    cout << "⚠️   Sisa kesempatan: " << kesempatan << "\n";
                 }
                 else
                 {
@@ -73,7 +74,7 @@ void login(Akun *data, int jumlah, bool &statusLogin, string &namaLogin, string 
                  << e.what() << "\n";
             kesempatan--;
             if (kesempatan > 0)
-                cout << "⚠️ Sisa kesempatan: " << kesempatan << "\n";
+                cout << "⚠️   Sisa kesempatan: " << kesempatan << "\n\n";
             else
             {
                 cout << "🚫 Kesempatan Habis.\n";
@@ -106,9 +107,9 @@ void registrasi(Akun *data, int &jumlah, int maxKapasitas)
             throw runtime_error("❌ Username sudah terdaftar. Gunakan username lain.");
 
         cout << "🔑 Masukkan Password : ";
-        cin >> pwBaru;
+        getline(cin, pwBaru);
         validasiPassword(pwBaru);
-
+        cout << endl;
         int newID = 1;
         for (int i = 0; i < jumlah; i++)
             if (data[i].role == "member" && data[i].id >= newID)
@@ -130,7 +131,7 @@ void registrasi(Akun *data, int &jumlah, int maxKapasitas)
     catch (const exception &e)
     {
         cout << endl
-             << e.what() << "\n\n";
+             << e.what() << "\n\n\n";
     }
 }
 
