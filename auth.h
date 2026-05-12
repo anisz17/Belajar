@@ -56,11 +56,11 @@ void login(Akun *data, int jumlah, bool &statusLogin, string &namaLogin, string 
                 cout << "\n❌ Login Gagal! Username atau Password salah.\n";
                 if (kesempatan > 0)
                 {
-                    cout << "⚠️   Sisa kesempatan: " << kesempatan << "\n";
+                    cout << "⚠️   Sisa kesempatan: " << kesempatan << "\n\n";
                 }
                 else
                 {
-                    cout << "\n🚫 Kesempatan Anda Habis!\n";
+                    cout << "🚫 Kesempatan Anda Habis!\n";
                     countdown(5);
                     system("pause");
                 }
