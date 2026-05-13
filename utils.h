@@ -9,7 +9,20 @@
 #include <windows.h>
 #include <cctype>
 #include <fstream>
+#include <vector>
 using namespace std;
+
+bool adaDiDaftar(string input, vector<string> daftar)
+{
+    for (int i = 0; i < daftar.size(); i++)
+    {
+        if (input == daftar[i])
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 void setColor(int color)
 {
@@ -46,7 +59,7 @@ void countdown(int detik)
     cout << "⏰ Silakan tunggu ";
     for (int i = detik; i > 0; i--)
     {
-        cout << i << "....";
+        cout << i << "..";
         cout.flush();
         Sleep(1000);
     }
@@ -54,64 +67,210 @@ void countdown(int detik)
     setColor(7);
 }
 
+void trimSpasi(string &teks)
+{
+    while (!teks.empty() && teks[0] == ' ')
+        teks.erase(0, 1);
+    while (!teks.empty() && teks[teks.length() - 1] == ' ')
+        teks.erase(teks.length() - 1, 1);
+}
+
+int inputMenu(const string &prompt)
+{
+    string input;
+    cout << prompt;
+    getline(cin, input);
+
+    if (input.empty())
+        throw invalid_argument("❌ Input tidak boleh kosong!");
+    for (char c : input)
+    {
+        if (!isdigit(c))
+            throw invalid_argument("❌ Input tidak valid!\n");
+    }
+
+    return stoi(input);
+}
+
 int inputInteger(const string &prompt)
 {
-    int nilai;
+    string input;
     cout << prompt;
-    cin >> nilai;
-    if (cin.fail())
+    getline(cin, input);
+
+    if (input.empty())
+        throw invalid_argument("❌ Input tidak boleh kosong!");
+    for (char c : input)
     {
-        cin.clear();
-        cin.ignore(1000, '\n');
-        throw invalid_argument("❌ Input Harus berupa angka.");
+        if (!isdigit(c))
+            throw invalid_argument("❌ Input tidak valid!\n");
     }
+    int nilai = stoi(input);
+    if (nilai <= 0)
+        throw invalid_argument("❌ Input tidak valid!");
+
     return nilai;
+}
+
+bool inputYesNo(const string &prompt)
+{
+    string input;
+    while (true)
+    {
+        cout << prompt;
+        if (cin.peek() == '\n')
+            cin.ignore(1000, '\n');
+        getline(cin, input);
+
+        if (input.empty())
+        {
+            cout << "❌ Masukkan y atau n!\n";
+            continue;
+        }
+        char jawaban = tolower(input[0]);
+        if (jawaban == 'y')
+            return true;
+        if (jawaban == 'n')
+            return false;
+
+        cout << "❌ Masukkan y atau n!\n";
+    }
+}
+
+void validasiKapasitas(int jumlah, int maxKapasitas)
+{
+    if (jumlah >= maxKapasitas)
+        throw invalid_argument("⚠️ Kapasitas penuh!");
+}
+
+void validasiID(int id)
+{
+    if (id <= 0)
+        throw invalid_argument("❌ ID tidak valid!");
 }
 
 void validasiHurufSpasi(const string &teks, const string &namaField, int minLen = 0)
 {
-    if (teks.empty() || teks == " ")
-        throw invalid_argument("❌ " + namaField + " tidak boleh kosong!");
-    if ((int)teks.length() < minLen)
-        throw invalid_argument("❌ " + namaField + " minimal " + to_string(minLen) + " karakter!");
+    if (teks.empty())
+        throw invalid_argument("❌ input tidak boleh kosong!\n");
 
-    bool semuaSpasi = true;
+    if ((int)teks.length() < minLen)
+        throw invalid_argument("❌ input minimal 4 karakter!");
+
     for (char c : teks)
     {
-        if (!isalpha(c) && c != ' ')
-            throw invalid_argument("❌ " + namaField + " hanya boleh huruf dan spasi!");
-        if (c != ' ')
-            semuaSpasi = false;
+        if (!isalpha((unsigned char)c) && c != ' ')
+            throw invalid_argument("❌ input hanya boleh huruf dan spasi!");
     }
-    if (semuaSpasi)
-        throw invalid_argument("❌ " + namaField + " tidak boleh hanya berisi spasi!");
 }
 
-void validasiHari(const string &hari)
+vector<string> daftarHari = {
+    "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"};
+string pilihHari()
 {
-    if (hari.empty())
-        throw invalid_argument("❌ Hari tidak boleh kosong!");
+    cout << "\n📅 Pilih Hari:\n";
+    for (int i = 0; i < daftarHari.size(); i++)
+        cout << i + 1 << ". " << daftarHari[i] << endl;
 
-    for (int i = 0; i < hari.length(); i++)
+    string pilihan;
+    cout << "Pilih: ";
+    getline(cin, pilihan);
+    if (pilihan.empty())
+        throw invalid_argument("\n❌ Input tidak boleh kosong!");
+    for (char c : pilihan)
     {
-        if (!isalpha(hari[i]) && hari[i] != ' ')
-        {
-            throw invalid_argument("❌ Hari hanya boleh berisi huruf!");
-        }
+        if (!isdigit(c))
+            throw invalid_argument("\n❌ Input tidak valid!");
     }
+    int pilih = stoi(pilihan);
+
+    if (pilih < 1 || pilih > daftarHari.size())
+        throw invalid_argument("\n❌ Pilihan tidak valid!");
+
+    return daftarHari[pilih - 1];
 }
 
-void validasiJam(const string &jam)
+void validasiFormatJam(string jam)
 {
     if (jam.empty())
         throw invalid_argument("❌ Jam tidak boleh kosong!");
+    if (jam.length() != 5 || jam[2] != ':')
+        throw invalid_argument("❌ Format HH:MM");
 
-    for (int i = 0; i < jam.length(); i++)
+    int h = stoi(jam.substr(0, 2));
+    int m = stoi(jam.substr(3, 2));
+
+    if (h < 0 || h > 23 || m < 0 || m > 59)
+        throw invalid_argument("❌ Jam tidak valid");
+}
+
+void validasiRentangJam(string mulai, string selesai)
+{
+    int m1 = stoi(mulai.substr(0, 2)) * 60 + stoi(mulai.substr(3, 2));
+    int m2 = stoi(selesai.substr(0, 2)) * 60 + stoi(selesai.substr(3, 2));
+
+    if (m2 <= m1)
+        throw invalid_argument("❌ Jam selesai harus lebih besar");
+}
+
+string inputJam()
+{
+    string mulai, selesai;
+
+    while (true)
     {
-        if (!isdigit(jam[i]) && jam[i] != ':' && jam[i] != '-' && jam[i] != ' ')
+        try
         {
-            throw invalid_argument("❌ Format jam tidak valid!");
+            cout << "\n🕐 Jam Mulai: ";
+            getline(cin, mulai);
+            cout << "🕐 Jam Selesai: ";
+            getline(cin, selesai);
+
+            if (mulai.empty() || selesai.empty())
+                throw invalid_argument("❌ Jam tidak boleh kosong");
+
+            validasiFormatJam(mulai);
+            validasiFormatJam(selesai);
+            validasiRentangJam(mulai, selesai);
+
+            return mulai + " - " + selesai;
         }
+        catch (exception &e)
+        {
+            cout << e.what() << "\n\n";
+        }
+    }
+}
+
+void validasiJenis(string jenis)
+{
+    vector<string> daftarJenis = {
+        "mat",
+        "reformer",
+        "cadillac",
+        "klinis",
+        "kontemporer"};
+    if (jenis.empty())
+        throw invalid_argument("❌ Jenis kelas tidak boleh kosong!");
+    if (!adaDiDaftar(jenis, daftarJenis))
+    {
+        throw invalid_argument(
+            "❌ Jenis kelas tidak valid!");
+    }
+}
+
+void validasiKategori(string kategori)
+{
+    vector<string> daftarKategori = {
+        "private",
+        "reguler"};
+    if (kategori.empty())
+        throw invalid_argument("❌ Kategori tidak boleh kosong!");
+    if (!adaDiDaftar(kategori, daftarKategori))
+    {
+        throw invalid_argument(
+            "❌ Kategori tidak valid! "
+            "Pilih: Private/Reguler");
     }
 }
 
@@ -120,26 +279,12 @@ void validasiPassword(const string &pw)
     if (pw.empty())
         throw invalid_argument("❌ Password tidak boleh kosong!");
     if ((int)pw.length() < 3)
-        throw length_error("❌ Password terlalu pendek! Minimal 3 karakter.");
-}
-
-void validasiKapasitas(int jumlah, int maxKapasitas)
-{
-    if (jumlah >= maxKapasitas)
-        throw length_error("⚠️ Kapasitas penuh! Tidak dapat menambah data.");
-}
-
-void validasiID(int id)
-{
-    if (id <= 0)
-        throw out_of_range("❌ ID tidak valid! Harus berupa angka positif.");
+        throw invalid_argument("❌ Password minimal 3 karakter!");
 }
 
 string formatRupiah(int harga)
 {
-    stringstream ss;
-    ss << "Rp " << harga;
-    return ss.str();
+    return "Rp " + to_string(harga);
 }
 
 void simpanAkun(Akun *data, int jumlah)
@@ -272,11 +417,9 @@ int cariID(Akun *data, int jumlah, int targetID)
 
 void tampilkanDaftarMember(Akun *data, int jumlah)
 {
-    cout << "\n";
-    cout << "====================================================\n";
+    cout << "\n====================================================\n";
     cout << "||          👥 DAFTAR MEMBER TERDAFTAR 👥         ||\n";
     cout << "====================================================\n";
-
     cout << left << setw(8) << "ID" << setw(20) << "Nama" << setw(20) << "Saldo" << endl;
     cout << "----------------------------------------------------\n";
 
@@ -286,34 +429,24 @@ void tampilkanDaftarMember(Akun *data, int jumlah)
         if (data[i].role == "member")
         {
             ada = true;
-            cout << left << setw(8) << data[i].id;
-            cout << setw(20) << data[i].nama;
-            cout << setw(20) << "💰 " + formatRupiah(data[i].saldo) << "\n";
+            cout << left << setw(8) << data[i].id
+                 << setw(20) << data[i].nama
+                 << setw(20) << "💰 " + formatRupiah(data[i].saldo) << "\n";
         }
     }
     if (!ada)
-    {
         cout << "❌ Belum ada data member terdaftar !\n";
-    }
     cout << "====================================================\n";
 }
 
 void tampilkanDaftarJadwal(JadwalKelas *dataJadwal, int jumlahJadwal)
 {
-    cout << "\n";
-    cout << "==========================================================================================================\n";
+    cout << "\n==========================================================================================================\n";
     cout << "||                                     📅 DAFTAR JADWAL KELAS 📅                                        ||\n";
     cout << "==========================================================================================================\n";
-
-    cout << left
-         << setw(5) << "ID"
-         << setw(10) << "Hari"
-         << setw(15) << "Jam"
-         << setw(18) << "Jenis"
-         << setw(15) << "Kategori"
-         << setw(15) << "Instruktur"
-         << setw(12) << "Harga"
-         << "Kapasitas" << endl;
+    cout << left << setw(5) << "ID" << setw(10) << "Hari" << setw(15) << "Jam"
+         << setw(18) << "Jenis" << setw(15) << "Kategori" << setw(15) << "Instruktur"
+         << setw(12) << "Harga" << "Kapasitas" << endl;
     cout << "----------------------------------------------------------------------------------------------------------\n";
 
     if (jumlahJadwal == 0)
@@ -325,19 +458,17 @@ void tampilkanDaftarJadwal(JadwalKelas *dataJadwal, int jumlahJadwal)
         for (int i = 0; i < jumlahJadwal; i++)
         {
             int sisa = dataJadwal[i].kapasitas - dataJadwal[i].terisi;
-
-            cout << left << setw(5) << dataJadwal[i].jadwalID;
-            cout << setw(10) << dataJadwal[i].hari;
-            cout << setw(15) << dataJadwal[i].jam;
-            cout << setw(18) << dataJadwal[i].jenisKelas;
-            cout << setw(15) << dataJadwal[i].kategori;
-            cout << setw(15) << dataJadwal[i].instruktur;
-            cout << setw(12) << formatRupiah(dataJadwal[i].harga);
-            cout << dataJadwal[i].terisi << "/" << dataJadwal[i].kapasitas
+            cout << left << setw(5) << dataJadwal[i].jadwalID
+                 << setw(10) << dataJadwal[i].hari
+                 << setw(15) << dataJadwal[i].jam
+                 << setw(18) << dataJadwal[i].jenisKelas
+                 << setw(15) << dataJadwal[i].kategori
+                 << setw(15) << dataJadwal[i].instruktur
+                 << setw(12) << formatRupiah(dataJadwal[i].harga)
+                 << dataJadwal[i].terisi << "/" << dataJadwal[i].kapasitas
                  << " (sisa " << sisa << ")" << endl;
         }
     }
-
     cout << "==========================================================================================================\n";
 }
 

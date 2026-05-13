@@ -3,16 +3,31 @@
 #include "struct.h"
 #include "utils.h"
 #include "auth.h"
-#include "admin.h"
+#include "admin_user.h"
+#include "admin_jadwal.h"
 #include "user.h"
+#include <csignal>
 
 using namespace std;
 
+void tanganiCtrlC(int signal)
+{
+    cout << "\n\n⚠️   Ctrl + C terdeteksi!\n";
+    cout << "Program dihentikan.\n";
+    ExitProcess(signal);
+}
+
+void setupErrorHandling()
+{
+    signal(SIGINT, tanganiCtrlC);
+}
+
 int main()
 {
+    setupErrorHandling();
     SetConsoleOutputCP(65001);
 
-    const int MAX = 20;
+    const int MAX = 10;
     const int MAX_BOOKING = 50;
     const int MAX_JADWAL = 30;
     const int MAX_TOPUP = 100;
@@ -82,7 +97,21 @@ int main()
 
             try
             {
-                int pilihan = inputInteger("🎯 Pilih menu (1/2/0): ");
+                string input;
+                cout << "🎯 Pilih menu (1/2/0): ";
+                getline(cin, input);
+
+                if (input.empty())
+                    throw invalid_argument("❌ Input tidak boleh kosong!\n");
+
+                for (char c : input)
+                {
+                    if (!isdigit(c))
+                        throw invalid_argument("❌ Input tidak valid!\n");
+                }
+
+                int pilihan = stoi(input);
+
                 if (pilihan == 1)
                     login(ptrAkun, jumlah, statusLogin, namaLogin, roleLogin);
                 else if (pilihan == 2)
@@ -92,6 +121,7 @@ int main()
                 }
                 else if (pilihan == 0)
                 {
+                    loadingAnimation();
                     system("cls");
                     setColor(11);
                     cout << "\n";
@@ -115,7 +145,7 @@ int main()
                     programAktif = false;
                 }
                 else
-                    throw out_of_range("❌ Pilihan tidak valid!");
+                    throw invalid_argument("❌ Pilihan tidak valid!");
             }
             catch (const exception &e)
             {
@@ -147,14 +177,28 @@ int main()
 
                 try
                 {
-                    int pilihan = inputInteger("🎯 Pilih menu (0-8): ");
+                    string input;
+                    cout << "🎯 Pilih menu (0-8): ";
+                    getline(cin, input);
+
+                    if (input.empty())
+                        throw invalid_argument("❌ Input tidak boleh kosong!");
+
+                    for (char c : input)
+                    {
+                        if (!isdigit(c))
+                            throw invalid_argument("❌ Input tidak valid!");
+                    }
+
+                    int pilihan = stoi(input);
+
                     if (pilihan == 1)
                     {
                         tambahMember(ptrAkun, jumlah, MAX);
                         system("pause");
                     }
                     else if (pilihan == 2)
-                        lihatMember(ptrAkun, jumlah);
+                        lihatMember(ptrAkun, jumlah, true);
                     else if (pilihan == 3)
                     {
                         hapusMember(ptrAkun, jumlah);
@@ -195,7 +239,7 @@ int main()
                         system("pause");
                     }
                     else
-                        throw out_of_range("❌ Pilihan tidak valid!");
+                        throw invalid_argument("❌ Pilihan tidak valid!");
                 }
                 catch (const exception &e)
                 {
@@ -222,7 +266,21 @@ int main()
 
                 try
                 {
-                    int pilihan = inputInteger("🎯 Pilih menu: ");
+                    string input;
+                    cout << "🎯 Pilih menu: ";
+                    getline(cin, input);
+
+                    if (input.empty())
+                        throw invalid_argument("❌ Input tidak boleh kosong!");
+
+                    for (char c : input)
+                    {
+                        if (!isdigit(c))
+                            throw invalid_argument("❌ Input tidak valid!");
+                    }
+
+                    int pilihan = stoi(input);
+
                     if (pilihan == 1)
                     {
                         ProfilSaya(ptrAkun, jumlah, namaLogin);
@@ -258,7 +316,7 @@ int main()
                         system("pause");
                     }
                     else
-                        throw out_of_range("❌ Pilihan tidak valid!");
+                        throw invalid_argument("❌ Pilihan tidak valid!");
                 }
                 catch (const exception &e)
                 {
