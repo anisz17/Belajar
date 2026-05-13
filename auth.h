@@ -29,14 +29,14 @@ void login(Akun *data, int jumlah, bool &statusLogin, string &namaLogin, string 
                 }
                 catch (const exception &e)
                 {
-                    cout << endl
-                         << e.what() << "\n";
+                    cout << e.what() << "\n";
                 }
             }
 
             cout << "🔑 Masukkan Password : ";
             getline(cin, inputpw);
             validasiPassword(inputpw);
+
             int index = cariusername(data, jumlah, inputNama);
             if (index != -1 && data[index].pw == inputpw)
             {
@@ -55,9 +55,7 @@ void login(Akun *data, int jumlah, bool &statusLogin, string &namaLogin, string 
                 kesempatan--;
                 cout << "\n❌ Login Gagal! Username atau Password salah.\n";
                 if (kesempatan > 0)
-                {
                     cout << "⚠️   Sisa kesempatan: " << kesempatan << "\n\n";
-                }
                 else
                 {
                     cout << "🚫 Kesempatan Anda Habis!\n";
@@ -96,50 +94,31 @@ void registrasi(Akun *data, int &jumlah, int maxKapasitas)
         string namaBaru, pwBaru;
         bool namaValid = false;
 
-        while (!namaValid)
-        {
-            try
-            {
-                cout << "👤 Masukkan Nama Member : ";
-                getline(cin, namaBaru);
-                while (!namaBaru.empty() && namaBaru[0] == ' ')
-                {
-                    namaBaru.erase(0, 1);
-                }
-                while (!namaBaru.empty() && namaBaru[namaBaru.length() - 1] == ' ')
-                {
-                    namaBaru.erase(namaBaru.length() - 1, 1);
-                }
-                validasiHurufSpasi(namaBaru, "Nama Member", 4);
-                if (cariusername(data, jumlah, namaBaru) != -1)
-                    throw runtime_error("❌ Username sudah terdaftar.");
+        cout << "👤 Masukkan Nama Member : ";
+        getline(cin, namaBaru);
+        trimSpasi(namaBaru);
+        validasiHurufSpasi(namaBaru, "Nama Member", 4);
 
-                namaValid = true;
-                cout << "✅ Username valid!\n\n";
-            }
-            catch (const exception &e)
-            {
-                cout << e.what() << "\n";
-                cout << "🔄 Silakan masukkan username kembali.\n\n";
-            }
-        }
+        if (cariusername(data, jumlah, namaBaru) != -1)
+            throw invalid_argument("❌ Username sudah terdaftar.");
+
+        namaValid = true;
+        cout << "✅ Username valid!\n\n";
+        
         bool passwordValid = false;
-
         while (!passwordValid)
         {
             try
             {
                 cout << "🔑 Masukkan Password Member : ";
                 getline(cin, pwBaru);
-
                 validasiPassword(pwBaru);
-
                 passwordValid = true;
                 cout << "✅ Password valid!\n\n";
             }
             catch (const exception &e)
             {
-                cout << "❌ " << e.what() << "\n";
+                cout << e.what() << "\n";
                 cout << "🔄 Silakan masukkan password kembali.\n\n";
             }
         }
